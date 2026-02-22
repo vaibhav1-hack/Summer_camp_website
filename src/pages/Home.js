@@ -12,7 +12,7 @@ export default function Home() {
                     </div>
 
                     <h1 className="h1">
-                        A summer camp that builds <span className="muted">skills</span> — not chaos.
+                        Gaurav bhangi <span className="muted">skills</span> — not chaos.
                     </h1>
 
                     <p className="lead">
