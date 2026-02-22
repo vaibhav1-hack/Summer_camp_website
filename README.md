@@ -1,70 +1,178 @@
-# Getting Started with Create React App
+# 🚀 Summer Camp Sports Website
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+A multi-page React application built with Create React App, with automated CI/CD deployment using GitHub Actions + Firebase Hosting.
 
-## Available Scripts
+---
 
-In the project directory, you can run:
+## 📌 Project Overview
 
-### `npm start`
+This project is a modern React website for a Summer Camp Sports program with:
+- Home page
+- Sports page
+- Contact/Enquiry page
+- Clean UI + routing
+- Auto-deploy on every push to `main`
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+---
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+## 🛠 Tech Stack
 
-### `npm test`
+- **Frontend:** React (Create React App)
+- **Routing:** react-router-dom
+- **CI/CD:** GitHub Actions
+- **Hosting:** Firebase Hosting
+- **Version Control:** Git & GitHub
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+---
 
-### `npm run build`
+## 📂 Project Structure
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+summercamp_update/
+- public/
+- src/
+- firebase.json
+- .firebaserc
+- package.json
+- package-lock.json
+- .github/
+  └── workflows/
+      └── deploy.yml
+- README.md
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+---
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+## ✅ Full Build + Deploy Flow
 
-### `npm run eject`
+Local changes → push to `main` → GitHub Actions runs → `npm ci` → `npm run build` → deploy to Firebase Hosting → live site updates.
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+---
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+# 1) Create React App & Setup Pages
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+## 1.1 Create the project
+npx create-react-app summercamp_update  
+cd summercamp_update  
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+## 1.2 Install router
+npm install react-router-dom  
 
-## Learn More
+## 1.3 Create pages & routing
+Create pages inside `src/pages/`:
+- Home.js
+- Sports.js
+- Contact.js
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+Add routing in `src/App.js` using `BrowserRouter`, `Routes`, `Route`.
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+---
 
-### Code Splitting
+# 2) Firebase Hosting Setup (Manual Hosting Setup)
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+## 2.1 Install Firebase CLI
+npm install -g firebase-tools  
 
-### Analyzing the Bundle Size
+## 2.2 Login (local machine only)
+firebase login  
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+## 2.3 Build the React app (creates `build/` folder locally)
+npm run build  
 
-### Making a Progressive Web App
+## 2.4 Initialize Firebase Hosting in the project folder
+firebase init hosting  
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+Choose these options carefully:
+- **Use an existing project** (select your Firebase project)
+- **Public directory:** build
+- **Configure as a single-page app (rewrite all URLs to /index.html):** Yes
+- **Set up automatic builds and deploys with GitHub?** No (we do it manually via workflow)
+- **Overwrite files?** NO (never overwrite your React files)
 
-### Advanced Configuration
+## 2.5 Verify firebase.json (must deploy `build`)
+{
+  "hosting": {
+    "public": "build",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ],
+    "rewrites": [
+      { "source": "**", "destination": "/index.html" }
+    ]
+  }
+}
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+## 2.6 First-time manual deploy (optional but recommended once)
+firebase deploy --only hosting  
 
-### Deployment
+This confirms Firebase Hosting works before CI/CD.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+---
 
-### `npm run build` fails to minify
+# 3) CI/CD Setup (GitHub Actions → Firebase Hosting)
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+## 3.1 Generate Firebase CI token (local machine)
+firebase login:ci  
+
+Copy the token printed in terminal.
+
+## 3.2 Add token as GitHub Secret
+GitHub Repo → Settings → Secrets and variables → Actions → New repository secret
+- Name: FIREBASE_TOKEN
+- Value: (paste token)
+
+## 3.3 Create workflow file
+Create this file in your repo:
+.github/workflows/deploy.yml
+
+Paste and update PROJECT_ID:
+
+name: Deploy React App to Firebase
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  build_and_deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Build React App
+        run: npm run build
+
+      - name: Deploy to Firebase Hosting
+        run: npx firebase-tools deploy --only hosting --project summer-camp-499ea-b1c8b --token "${{ secrets.FIREBASE_TOKEN }}"
+
+
+
+## 3.4 Push workflow to main
+git add .github/workflows/deploy.yml firebase.json .firebaserc  
+git commit -m "Add Firebase CI/CD deploy workflow"  
+git push origin main  
+
+---
+
+# 4) Verify Deployment
+
+1) GitHub → Actions → confirm latest workflow run is green ✅  
+2) Open hosting URL:
+
+https://summer-camp-499ea-b1c8b.web.app/
+
+
+
+## 🌍 Live Demo
+https://summer-camp-499ea-b1c8b.web.app/
