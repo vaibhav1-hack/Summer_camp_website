@@ -8,11 +8,11 @@ export default function Home() {
                     <div className="pillRow">
                         <span className="pill">Ages 8–16</span>
                         <span className="pill">Mon–Sat • Morning</span>
-                        <span className="pill">Skill-based batches</span>
+                        <span className="pill">Skill-based Batches</span>
                     </div>
 
                     <h1 className="h1">
-                        A summer camp that builds <span className="muted">best skills</span> — not chaos.
+                        A summer camp that is gaurav <span className="muted">best skills</span> — not chaos.
                     </h1>
 
                     <p className="lead">
