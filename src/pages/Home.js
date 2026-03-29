@@ -12,7 +12,7 @@ export default function Home() {
                     </div>
 
                     <h1 className="h1">
-                        A summer camp that is gaurav <span className="muted">best skills</span> — not chaos.
+                        A summer camp that is dexubeto <span className="muted">best skills</span> — not chaos.
                     </h1>
 
                     <p className="lead">
